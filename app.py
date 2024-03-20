@@ -1,5 +1,6 @@
 import streamlit as st
 from openai import OpenAI
+from streamlit_option_menu import option_menu
 
 system_instruction = """
 You are a helpful AI assistant meant to help users with supply chain questions.
@@ -24,47 +25,71 @@ st.set_page_config(
 
 with st.sidebar:
     st.markdown("### **💬Welcome onboard!**")
+    selected = option_menu(
+        menu_title="Current Features",
+        options=[
+            "SCM Chatbot",
+            "PDF Analyzer"
+        ],
+        icons=[
+            'chat-right-dots-fill', 'filetype-pdf'  # https://icons.getbootstrap.com/
+        ],
+        menu_icon="list-nested",
+        default_index=0,
+        orientation="vertical"
+    )
 
-st.title("Supply Chain Management")
-st.image("www/img/scm_pic.png")
+if selected == "SCM Chatbot":
 
-# Set OpenAI API key from Streamlit secrets
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    st.title("Supply Chain Management")
+    st.image("www/img/scm_pic.png")
 
-# Set a default model
-if "openai_model" not in st.session_state:
-    st.session_state["openai_model"] = "gpt-3.5-turbo"
+    # Set OpenAI API key from Streamlit secrets
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-# Initialize chat history
-if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {"role": "system", "content": system_instruction}
-    ]
+    # Set a default model
+    if "openai_model" not in st.session_state:
+        st.session_state["openai_model"] = "gpt-3.5-turbo"
 
-# Display chat messages from history on app rerun
-for message in st.session_state.messages:
-    if message["role"] != "system":
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+    # Initialize chat history
+    if "messages" not in st.session_state:
+        st.session_state.messages = [
+            {"role": "system", "content": system_instruction}
+        ]
 
-# Accept user input
-if prompt := st.chat_input("Hi there! How can I help you today?"):
-    # Add user message to chat history
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    # Display user message in chat message container
-    with st.chat_message("user"):
-        st.markdown(prompt)
+    # Display chat messages from history on app rerun
+    for message in st.session_state.messages:
+        if message["role"] != "system":
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
 
- # Display assistant response in chat message container
-    with st.chat_message("assistant"):
-        stream = client.chat.completions.create(
-            model=st.session_state["openai_model"],
-            messages=[
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
-            stream=True,
-        )
-        response = st.write_stream(stream)
-    st.session_state.messages.append(
-        {"role": "assistant", "content": response})
+    # Accept user input
+    if prompt := st.chat_input("Hi there! How can I help you today?"):
+        # Add user message to chat history
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        # Display user message in chat message container
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+    # Display assistant response in chat message container
+        with st.chat_message("assistant"):
+            stream = client.chat.completions.create(
+                model=st.session_state["openai_model"],
+                messages=[
+                    {"role": m["role"], "content": m["content"]}
+                    for m in st.session_state.messages
+                ],
+                stream=True,
+            )
+            response = st.write_stream(stream)
+        st.session_state.messages.append(
+            {"role": "assistant", "content": response})
+else:
+    st.write("Hi there! I can help you get answers quickly from your PDFs.")
+    st.write("Just upload it below and then ask me anything")
+
+    st.file_uploader(
+        "Upload PDF",
+        accept_multiple_files=False,
+        key="uploaded_pdf"
+    )

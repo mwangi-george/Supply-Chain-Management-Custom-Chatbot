@@ -46,7 +46,6 @@ def chat_with_ai(prompt):
 
     response = requests.post(url, json=data, headers=headers, stream=True)
     output = response.json()["content"]
-    print(output, "\n")
     return output
 
 
