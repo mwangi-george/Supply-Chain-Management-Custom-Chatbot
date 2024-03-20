@@ -1,6 +1,9 @@
 import streamlit as st
 from openai import OpenAI
 from streamlit_option_menu import option_menu
+from io import BytesIO
+import requests
+
 
 system_instruction_for_chat_model = """
 You are a helpful AI assistant meant to help users with supply chain questions.
@@ -82,7 +85,7 @@ if selected == "SCM Chatbot":
         with st.chat_message("user"):
             st.markdown(prompt)
 
-    # Display assistant response in chat message container
+        # Display assistant response in chat message container
         with st.chat_message("assistant"):
             stream = client.chat.completions.create(
                 model=st.session_state["openai_model"],
@@ -102,17 +105,34 @@ else:
     file_from_user = st.file_uploader(
         "Upload PDF",
         accept_multiple_files=False,
-        key="uploaded_pdf"
+        key="uploaded_pdf",
+        type="pdf"
     )
 
-    if file_from_user != None:
+    if file_from_user is not None:
         st.write(file_from_user.name)
-    # files = [
-    #     ('file', ('file', open('www/pdfs/test_pdf.pdf', 'rb'), 'application/octet-stream'))
-    # ]
+        file_contents = file_from_user.getvalue()
+
+        files = [
+            ('file', ('file', BytesIO(file_contents), 'application/octet-stream'))]
 
     # Initialize chat history
     if "pdf_messages" not in st.session_state:
         st.session_state.pdf_messages = [
-            {"role": "system", "content": ""}
+            {"role": "system", "content": system_instruction_for_pdf_model}
         ]
+
+    # Display chat messages from history on app rerun
+    for pdf_messages in st.session_state.pdf_messages:
+        if pdf_messages["role"] != "system":
+            with st.chat_message(pdf_messages["role"]):
+                st.markdown(pdf_messages["content"])
+
+    # Accept user input
+    if prompt := st.chat_input("Hi there! How can I help you today?"):
+        # Add user message to chat history
+        st.session_state.pdf_messages.append(
+            {"role": "user", "content": prompt})
+        # Display user message in chat message container
+        with st.chat_message("user"):
+            st.markdown(prompt)
