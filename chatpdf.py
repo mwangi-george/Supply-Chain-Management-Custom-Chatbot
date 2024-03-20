@@ -7,7 +7,7 @@ my_chat_key = os.getenv("CHAT_PDF_API_KEY")
 
 # file to analyze with AI
 files = [
-    ('file', ('file', open('www/pdfs/test_pdf.pdf', 'rb'), 'application/octet-stream'))
+    ('file', ('file', open('www/pdfs/test_pdf_2.pdf', 'rb'), 'application/octet-stream'))
 ]
 
 

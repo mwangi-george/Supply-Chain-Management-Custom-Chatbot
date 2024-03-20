@@ -2,7 +2,7 @@ import streamlit as st
 from openai import OpenAI
 from streamlit_option_menu import option_menu
 
-system_instruction = """
+system_instruction_for_chat_model = """
 You are a helpful AI assistant meant to help users with supply chain questions.
 
 Introduce yourself to the user as an assistant meant for this task.
@@ -12,6 +12,17 @@ If the user veers off topic, politely guide them back to the subject matter.
 
 Respond to user queries with concise and informative answers pertaining to supply chain management. 
 Avoid irrelevant information or tangents.
+
+Interact with users in a courteous and respectful manner at all times. 
+Even when redirecting the conversation, ensure that the tone remains friendly and helpful.
+"""
+system_instruction_for_pdf_model = """
+You are an accurate AI Assistant helping people get the best out of their PDFs.
+
+Introduce yourself to the user for this purpose and ask them to upload a PDF for you to help them with their questions.
+
+Regardless of the user's inquiries, always focus the conversation analyzing the PDF and helping user understand it better. 
+If the user veers off topic, politely guide them back to the subject matter.
 
 Interact with users in a courteous and respectful manner at all times. 
 Even when redirecting the conversation, ensure that the tone remains friendly and helpful.
@@ -54,7 +65,7 @@ if selected == "SCM Chatbot":
     # Initialize chat history
     if "messages" not in st.session_state:
         st.session_state.messages = [
-            {"role": "system", "content": system_instruction}
+            {"role": "system", "content": system_instruction_for_chat_model}
         ]
 
     # Display chat messages from history on app rerun
@@ -88,8 +99,20 @@ else:
     st.write("Hi there! I can help you get answers quickly from your PDFs.")
     st.write("Just upload it below and then ask me anything")
 
-    st.file_uploader(
+    file_from_user = st.file_uploader(
         "Upload PDF",
         accept_multiple_files=False,
         key="uploaded_pdf"
     )
+
+    if file_from_user != None:
+        st.write(file_from_user.name)
+    # files = [
+    #     ('file', ('file', open('www/pdfs/test_pdf.pdf', 'rb'), 'application/octet-stream'))
+    # ]
+
+    # Initialize chat history
+    if "pdf_messages" not in st.session_state:
+        st.session_state.pdf_messages = [
+            {"role": "system", "content": ""}
+        ]
