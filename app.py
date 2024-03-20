@@ -16,6 +16,15 @@ Interact with users in a courteous and respectful manner at all times.
 Even when redirecting the conversation, ensure that the tone remains friendly and helpful.
 """
 
+st.set_page_config(
+    page_title="SCM Chatbot",
+    layout="wide",
+    page_icon="🤖"
+)
+
+with st.sidebar:
+    st.markdown("### **💬Welcome onboard!**")
+
 st.title("Supply Chain Management")
 st.image("www/img/scm_pic.png")
 
