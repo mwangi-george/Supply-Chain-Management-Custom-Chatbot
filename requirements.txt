@@ -1,3 +1,5 @@
 openai==1.14.2
 streamlit==1.32.2
 toml==0.10.2
+streamlit-option-menu==0.3.12
+requests==2.31.0
